@@ -1,0 +1,284 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Aktiv Grotesk Regular";
+  src: url("/font/aktiv-grotesk-regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    font-family: "Aktiv Grotesk Regular", system-ui, Avenir, Helvetica, Arial,
+      sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color-scheme: light dark;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #242424;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    font-family: "Aktiv Grotesk Regular", sans-serif;
+  }
+
+  a {
+    font-weight: 500;
+    color: #646cff;
+    text-decoration: inherit;
+  }
+
+  a:hover {
+    color: #535bf2;
+  }
+
+  button {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    padding: 0.6em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    font-family: inherit;
+    background-color: #1a1a1a;
+    cursor: pointer;
+    transition: border-color 0.25s;
+  }
+
+  button:hover {
+    border-color: #646cff;
+  }
+
+  button:focus,
+  button:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+}
+
+@layer components {
+  .f-heading-1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight;
+  }
+
+  .f-heading-4 {
+    @apply text-2xl md:text-3xl font-semibold leading-tight;
+  }
+
+  .f-body-1 {
+    @apply text-base leading-6;
+  }
+
+  .f-body-2 {
+    @apply text-sm leading-5;
+  }
+
+  .text-inverse {
+    @apply text-white;
+  }
+
+  .text-tertiary-inverse {
+    @apply text-gray-300;
+  }
+
+  .text-dark-secondary {
+    @apply text-gray-600;
+  }
+
+  .bg-dark {
+    @apply bg-black;
+  }
+
+  .bg-inverse {
+    @apply bg-white;
+  }
+
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .pl-outer-gutter {
+    @apply pl-5;
+  }
+
+  .p-outer-gutter {
+    @apply p-5;
+  }
+
+  .gap-gutter {
+    @apply gap-4;
+  }
+
+  .rounded-8 {
+    @apply rounded-lg;
+  }
+
+  .w-12-cols-vw {
+    @apply w-full;
+  }
+
+  .w-10-cols {
+    @apply w-full md:w-10/12;
+  }
+
+  .w-8-cols {
+    @apply w-full md:w-8/12;
+  }
+
+  .w-6-cols {
+    @apply w-full lg:w-6/12;
+  }
+
+  .w-11-cols-vw {
+    @apply w-full md:w-11/12;
+  }
+
+  .w-3-col-adjusted {
+    @apply w-1/3;
+  }
+
+  .w-4-col-adjusted {
+    @apply w-1/2 sm:w-1/3;
+  }
+
+  .pt-16 {
+    @apply pt-4;
+  }
+
+  .pt-24 {
+    @apply pt-6;
+  }
+
+  .pt-8 {
+    @apply pt-2;
+  }
+
+  .pt-4 {
+    @apply pt-1;
+  }
+
+  .mt-8 {
+    @apply mt-2;
+  }
+
+  .mt-32 {
+    @apply mt-8;
+  }
+
+  .mt-48 {
+    @apply mt-12;
+  }
+
+  .mt-64 {
+    @apply mt-16;
+  }
+
+  .mt-spacing-9 {
+    @apply mt-24;
+  }
+
+  .pt-spacing-7 {
+    @apply pt-16;
+  }
+
+  .pt-spacing-9 {
+    @apply pt-24;
+  }
+
+  .pb-48 {
+    @apply pb-12;
+  }
+
+  .pb-64 {
+    @apply pb-16;
+  }
+
+  .pt-32 {
+    @apply pt-8;
+  }
+
+  .pt-48 {
+    @apply pt-12;
+  }
+
+  .breakout {
+    @apply relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw];
+  }
+
+  .keyline-t {
+    @apply relative;
+  }
+
+  .keyline-t::before {
+    @apply content-[''] absolute top-0 left-0 right-0 border-t border-white;
+  }
+
+  .content-balance {
+    text-wrap: balance;
+  }
+
+  .content-pretty {
+    text-wrap: pretty;
+  }
+
+  .underline-bg-transparent {
+    @apply underline decoration-transparent;
+  }
+
+  .underline-thickness-1 {
+    @apply decoration-1;
+  }
+
+  .group-hover\:underline-text-inverse:hover {
+    @apply decoration-white;
+  }
+
+  .thematic__btn {
+    @apply p-2 text-white hover:bg-white hover:text-black transition-colors duration-300;
+  }
+
+  .thematic__item--text {
+    @apply text-gray-600;
+  }
+
+  .workQuote__text {
+    @apply text-white;
+  }
+
+  .no-wrap {
+    white-space: nowrap;
+  }
+
+  .w-fit {
+    width: fit-content;
+  }
+
+  .h-fit {
+    height: fit-content;
+  }
+
+  .aspect-\[5\/7\] {
+    aspect-ratio: 5/7;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}

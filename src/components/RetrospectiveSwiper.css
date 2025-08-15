@@ -1,0 +1,285 @@
+/* Retrospective Swiper Styles */
+.retrospective-swiper-container {
+  position: relative;
+  width: 100%;
+  margin-top: 24px;
+  padding: 0 16px;
+}
+
+@media (min-width: 640px) {
+  .retrospective-swiper-container {
+    padding: 0 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .retrospective-swiper-container {
+    margin-top: 64px;
+  }
+}
+
+.retrospective-swiper {
+  width: 100%;
+  height: auto;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.retrospective-swiper-track {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  will-change: transform;
+  user-select: none;
+  touch-action: pan-y pinch-zoom;
+}
+
+.retrospective-swiper-slide {
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.retrospective-slide-content {
+  width: 100%;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+}
+
+.retrospective-slide-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: fit-content;
+  bottom: 0;
+}
+
+.retrospective-year {
+  display: block;
+  color: rgba(255, 255, 255, 0.56);
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  width: fit-content;
+  margin-bottom: 8px;
+  margin-left: 28px;
+  font-family: "Aktiv Grotesk Regular", sans-serif;
+}
+
+.retrospective-image-container {
+  width: 100%;
+  height: fit-content;
+  margin-left: 24px;
+}
+
+@media (min-width: 640px) {
+  .retrospective-image-container {
+    margin-left: 32px;
+  }
+}
+
+.retrospective-picture {
+  display: block;
+  height: 200px;
+  width: 100%;
+  position: relative;
+  z-index: 5;
+  background-size: cover;
+}
+
+@media (min-width: 768px) {
+  .retrospective-picture {
+    height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .retrospective-picture {
+    height: 420px;
+  }
+}
+
+.retrospective-image {
+  transition: opacity 0.3s ease;
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+/* Custom Navigation Buttons */
+.retrospective-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.retrospective-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.retrospective-swiper-button-prev {
+  left: 8px;
+}
+
+.retrospective-swiper-button-next {
+  right: 8px;
+}
+
+@media (min-width: 640px) {
+  .retrospective-nav-btn {
+    width: 56px;
+    height: 56px;
+  }
+
+  .retrospective-swiper-button-prev {
+    left: 12px;
+  }
+
+  .retrospective-swiper-button-next {
+    right: 12px;
+  }
+}
+
+.retrospective-nav-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (min-width: 640px) {
+  .retrospective-nav-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Custom Pagination */
+.retrospective-pagination {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+.retrospective-pagination .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.retrospective-pagination .swiper-pagination-bullet-active {
+  background: white;
+  transform: scale(1.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Swiper Override Styles */
+.retrospective-swiper .swiper-button-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.retrospective-swiper .swiper-button-disabled:hover {
+  transform: translateY(-50%) scale(1);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 639px) {
+  .retrospective-swiper {
+    padding: 0 8px;
+  }
+
+  .retrospective-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .retrospective-nav-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .retrospective-swiper-button-prev {
+    left: 4px;
+  }
+
+  .retrospective-swiper-button-next {
+    right: 4px;
+  }
+}
+
+/* Animation Classes */
+.retrospective-slide-fade-enter {
+  opacity: 0;
+  transform: scale(1.05);
+  filter: blur(5px);
+}
+
+.retrospective-slide-fade-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0px);
+  transition: all 0.6s ease;
+}
+
+.retrospective-slide-fade-exit {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0px);
+}
+
+.retrospective-slide-fade-exit-active {
+  opacity: 0;
+  transform: scale(1.05);
+  filter: blur(5px);
+  transition: all 0.6s ease;
+}
+
+/* Ensure proper spacing and alignment */
+.retrospective-swiper .swiper-wrapper {
+  align-items: flex-start;
+}
+
+.retrospective-swiper .swiper-slide {
+  height: auto;
+  width: auto;
+}
+
+/* Ensure slides are properly sized */
+.retrospective-swiper .swiper-slide-active {
+  z-index: 2;
+}
+
+.retrospective-swiper .swiper-slide-prev,
+.retrospective-swiper .swiper-slide-next {
+  z-index: 1;
+}
