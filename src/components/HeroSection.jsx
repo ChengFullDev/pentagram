@@ -11,12 +11,6 @@ const HeroSection = () => {
   // Animation states for smooth flowing transitions
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // New animation states for prev/next approach
-  const [prevDiscipline, setPrevDiscipline] = useState("");
-  const [nextDiscipline, setNextDiscipline] = useState("");
-  const [prevSector, setPrevSector] = useState("");
-  const [nextSector, setNextSector] = useState("");
-
   // Scroll-based positioning state
   const [filterPosition, setFilterPosition] = useState("top");
 
@@ -292,33 +286,8 @@ const HeroSection = () => {
     },
   ];
 
-  // Initialize prev/next values and set initial widths
+  // Initialize element widths
   useEffect(() => {
-    const disciplineIndex = disciplines.findIndex(
-      (d) => d.label === activeDiscipline
-    );
-    const sectorIndex = sectors.findIndex((s) => s.label === activeSector);
-
-    if (disciplineIndex !== -1) {
-      const { prev, next } = calculatePrevNextItems(
-        activeDiscipline,
-        disciplines,
-        disciplineIndex
-      );
-      setPrevDiscipline(prev);
-      setNextDiscipline(next);
-    }
-
-    if (sectorIndex !== -1) {
-      const { prev, next } = calculatePrevNextItems(
-        activeSector,
-        sectors,
-        sectorIndex
-      );
-      setPrevSector(prev);
-      setNextSector(next);
-    }
-
     // Set initial width of disciplineElement to match currentDisciplineElement
     setTimeout(() => {
       updateElementWidths();
@@ -339,26 +308,6 @@ const HeroSection = () => {
         if (activeDiscipline !== "Everything" || activeSector !== "Everyone") {
           setActiveDiscipline("Everything");
           setActiveSector("Everyone");
-          // Update prev/next values for the default state
-          const disciplineIndex = disciplines.findIndex(
-            (d) => d.label === "Everything"
-          );
-          const sectorIndex = sectors.findIndex((s) => s.label === "Everyone");
-
-          if (disciplineIndex !== -1) {
-            const { prev, next } = calculatePrevNextItems(
-              disciplines,
-              disciplineIndex
-            );
-            setPrevDiscipline(prev);
-            setNextDiscipline(next);
-          }
-
-          if (sectorIndex !== -1) {
-            const { prev, next } = calculatePrevNextItems(sectors, sectorIndex);
-            setPrevSector(prev);
-            setNextSector(next);
-          }
         }
       }
     };
@@ -371,7 +320,7 @@ const HeroSection = () => {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [activeDiscipline, activeSector, disciplines, sectors]);
+  }, [activeDiscipline, activeSector]);
 
   // Resize event listener to update discipline and sector widths
   useEffect(() => {
@@ -416,6 +365,20 @@ const HeroSection = () => {
     };
   }, []);
 
+  // Update element widths when active discipline changes
+  useEffect(() => {
+    setTimeout(() => {
+      updateElementWidths();
+    }, 100);
+  }, [activeDiscipline]);
+
+  // Update element widths when active sector changes
+  useEffect(() => {
+    setTimeout(() => {
+      updateElementWidths();
+    }, 100);
+  }, [activeSector]);
+
   const onClickDiscipline = () => {
     setIsDisciplineOpen(true);
     enableScroll(false);
@@ -446,240 +409,59 @@ const HeroSection = () => {
     }
   };
 
-  // Calculate prev/next items for smooth flowing animation
-  const calculatePrevNextItems = (items, currentIndex) => {
-    const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
-    const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
-
-    return {
-      prev: items[prevIndex].label,
-      next: items[nextIndex].label,
-    };
-  };
-
-  // Smooth flowing animation function for changing selections
+  // Simple selection change function
   const animateSelectionChange = (newDiscipline, newSector) => {
     if (isAnimating) return; // Prevent multiple animations
 
     setIsAnimating(true);
 
-    // Animate disciplines if they're different
-    if (newDiscipline !== activeDiscipline) {
-      const currentDisciplineIndex = disciplines.findIndex(
-        (d) => d.label === activeDiscipline
-      );
-      const newDisciplineIndex = disciplines.findIndex(
-        (d) => d.label === newDiscipline
-      );
+    // Update states
+    setActiveDiscipline(newDiscipline);
+    setActiveSector(newSector);
 
-      if (currentDisciplineIndex !== -1 && newDisciplineIndex !== -1) {
-        // Calculate the path between disciplines
-        const disciplinePath = [];
-        if (currentDisciplineIndex < newDisciplineIndex) {
-          // Moving forward through disciplines
-          for (let i = currentDisciplineIndex; i <= newDisciplineIndex; i++) {
-            disciplinePath.push(disciplines[i].label);
-          }
-        } else {
-          // Moving backward through disciplines
-          for (let i = currentDisciplineIndex; i >= newDisciplineIndex; i--) {
-            disciplinePath.push(disciplines[i].label);
-          }
-        }
-
-        // Animate through each discipline in the path with cascading movement
-        disciplinePath.forEach((disciplineLabel, index) => {
-          setTimeout(() => {
-            const { prev, next } = calculatePrevNextItems(disciplines, index);
-
-            setActiveDiscipline(disciplineLabel);
-            setPrevDiscipline(prev);
-            setNextDiscipline(next);
-
-            // Update width after discipline change
-            setTimeout(() => updateElementWidths(), 0);
-
-            const isMovingForward = currentDisciplineIndex < newDisciplineIndex;
-            const direction = isMovingForward ? "forward" : "backward";
-
-            // Add vertical movement effect with cascading
-            const disciplineElement = document.querySelector(
-              "#current-discipline-item"
-            );
-            if (disciplineElement) {
-              animateCascadingMovement(
-                disciplineElement,
-                direction,
-                index * 100
-              );
-            }
-
-            const prevDisciplineElement = document.querySelector(
-              "#prev-discipline-item"
-            );
-            if (prevDisciplineElement) {
-              animateCascadingMovement(
-                prevDisciplineElement,
-                direction,
-                index * 100
-              );
-            }
-
-            const nextDisciplineElement = document.querySelector(
-              "#next-discipline-item"
-            );
-            if (nextDisciplineElement) {
-              animateCascadingMovement(
-                nextDisciplineElement,
-                direction,
-                index * 100
-              );
-            }
-          }, index * 100);
-        });
-      }
-    }
-
-    // Animate sectors if they're different
-    if (newSector !== activeSector) {
-      const currentSectorIndex = sectors.findIndex(
-        (s) => s.label === activeSector
-      );
-      const newSectorIndex = sectors.findIndex((s) => s.label === newSector);
-
-      if (currentSectorIndex !== -1 && newSectorIndex !== -1) {
-        // Calculate the path between sectors
-        const sectorPath = [];
-        if (currentSectorIndex < newSectorIndex) {
-          // Moving forward through sectors
-          for (let i = currentSectorIndex; i <= newSectorIndex; i++) {
-            sectorPath.push(sectors[i].label);
-          }
-        } else {
-          // Moving backward through sectors
-          for (let i = currentSectorIndex; i >= newSectorIndex; i--) {
-            sectorPath.push(sectors[i].label);
-          }
-        }
-
-        // Animate through each sector in the path with cascading movement
-        sectorPath.forEach((sectorLabel, index) => {
-          setTimeout(() => {
-            const { prev, next } = calculatePrevNextItems(sectors, index);
-
-            setActiveSector(sectorLabel);
-            setPrevSector(prev);
-            setNextSector(next);
-
-            const isMovingForward = currentSectorIndex < newSectorIndex;
-            const direction = isMovingForward ? "forward" : "backward";
-
-            // Add vertical movement effect with cascading
-            const sectorElement = document.querySelector(
-              "#current-sector-item"
-            );
-            if (sectorElement) {
-              animateCascadingMovement(sectorElement, direction, index * 100);
-            }
-
-            const prevSectorElement =
-              document.querySelector("#prev-sector-item");
-            if (prevSectorElement) {
-              animateCascadingMovement(
-                prevSectorElement,
-                direction,
-                index * 100
-              );
-            }
-
-            const nextSectorElement =
-              document.querySelector("#next-sector-item");
-            if (nextSectorElement) {
-              animateCascadingMovement(
-                nextSectorElement,
-                direction,
-                index * 100
-              );
-            }
-          }, index * 100);
-        });
-      }
-    }
-
-    // Complete the animation after all transitions
-    const maxPathLength = Math.max(
-      newDiscipline !== activeDiscipline
-        ? Math.abs(
-            disciplines.findIndex((d) => d.label === activeDiscipline) -
-              disciplines.findIndex((d) => d.label === newDiscipline)
-          ) + 1
-        : 0,
-      newSector !== activeSector
-        ? Math.abs(
-            sectors.findIndex((s) => s.label === activeSector) -
-              sectors.findIndex((s) => s.label === newSector)
-          ) + 1
-        : 0
-    );
-
-    if (maxPathLength > 0) {
-      setTimeout(() => {
-        // Set the width of disciplineElement to match currentDisciplineElement
-        updateElementWidths();
-
-        setActiveDiscipline(newDiscipline);
-        setActiveSector(newSector);
-        setIsAnimating(false);
-      }, maxPathLength * 100);
-    } else {
-      // No animation needed
-      // Update width after state change
-      setTimeout(() => {
-        updateElementWidths();
-      }, 0);
-
-      setActiveDiscipline(newDiscipline);
-      setActiveSector(newSector);
+    // Update width after state change
+    setTimeout(() => {
+      updateElementWidths();
       setIsAnimating(false);
-    }
+    }, 100);
   };
 
   // Function to update discipline and sector element widths to match current elements
   const updateElementWidths = () => {
     // Update discipline width
     const disciplineElement = document.querySelector("#discipline-item");
-    const currentDisciplineElement = document.querySelector(
-      "#current-discipline-item"
+    const activeDisciplineItem = document.querySelector(
+      `#discipline-item-${
+        disciplines.find((d) => d.label === activeDiscipline)?.id ||
+        "everything"
+      }`
     );
 
-    if (disciplineElement && currentDisciplineElement) {
-      // debugger;
-      const currentWidth =
-        currentDisciplineElement.getBoundingClientRect().width;
+    console.log("disciplineElement + ", disciplineElement);
+    console.log("activeDisciplineItem + ", activeDisciplineItem);
+
+    if (disciplineElement && activeDisciplineItem) {
+      // const currentWidth = activeDisciplineItem.width;
+      const range = document.createRange();
+      range.selectNodeContents(activeDisciplineItem);
+      const currentWidth = range.getBoundingClientRect().width;
       disciplineElement.style.width = `${currentWidth}px`;
     }
 
     // Update sector width
     const sectorElement = document.querySelector("#sector-item");
-    const currentSectorElement = document.querySelector("#current-sector-item");
+    const activeSectorItem = document.querySelector(
+      `#sector-item-${
+        sectors.find((s) => s.label === activeSector)?.id || "everyone"
+      }`
+    );
 
-    if (sectorElement && currentSectorElement) {
-      const currentWidth = currentSectorElement.getBoundingClientRect().width;
+    if (sectorElement && activeSectorItem) {
+      const range = document.createRange();
+      range.selectNodeContents(activeSectorItem);
+      const currentWidth = range.getBoundingClientRect().width;
       sectorElement.style.width = `${currentWidth}px`;
     }
-  };
-
-  // Cascading movement animation function
-  const animateCascadingMovement = (element, direction, delay) => {
-    if (!element) return;
-
-    const moveAmount = direction === "forward" ? -20 : 20;
-    element.style.transform = `translateY(${moveAmount}px)`;
-    element.style.transition = "transform 0.1s ease-out";
-
-    setTimeout(() => {
-      element.style.transform = "translateY(0)";
-    }, delay + 50);
   };
 
   const onChangeSlide = (index) => {
@@ -717,15 +499,66 @@ const HeroSection = () => {
       return false;
     });
 
-    // Use smooth animation for changes
+    // Only update sector, keep discipline as is
     const newSector = correspondingSector
       ? correspondingSector.label
       : "Everyone";
-    const newDiscipline = correspondingDiscipline
-      ? correspondingDiscipline.label
-      : "Everything";
 
-    animateSelectionChange(newDiscipline, newSector);
+    // Only update sector if it's different
+    if (newSector !== activeSector) {
+      animateSectorList(newSector);
+    }
+
+    // Don't automatically change discipline - let user control it
+    // Only animate discipline if there's a specific corresponding discipline found
+    if (
+      correspondingDiscipline &&
+      correspondingDiscipline.label !== activeDiscipline
+    ) {
+      animateDisciplineList(correspondingDiscipline.label);
+    }
+  };
+
+  // Function to animate discipline list position
+  const animateDisciplineList = (newDiscipline) => {
+    const disciplineList = document.querySelector("#discipline-list");
+    if (!disciplineList) return;
+
+    const currentIndex = disciplines.findIndex(
+      (d) => d.label === activeDiscipline
+    );
+    const newIndex = disciplines.findIndex((d) => d.label === newDiscipline);
+
+    if (currentIndex === -1 || newIndex === -1) return;
+
+    // Calculate the transform to move from current to new position
+    const itemHeight = 44; // h-28 = 7rem = 112px
+    const offset = -newIndex * itemHeight;
+
+    // Apply the transform to create smooth transition
+    disciplineList.style.transform = `translateY(${offset}px)`;
+    setActiveDiscipline(newDiscipline);
+    updateElementWidths();
+  };
+
+  // Function to animate sector list position
+  const animateSectorList = (newSector) => {
+    const sectorList = document.querySelector("#sector-list");
+    if (!sectorList) return;
+
+    const currentIndex = sectors.findIndex((s) => s.label === activeSector);
+    const newIndex = sectors.findIndex((s) => s.label === newSector);
+
+    if (currentIndex === -1 || newIndex === -1) return;
+
+    // Calculate the transform to move from current to new position
+    const itemHeight = 44; // h-28 = 7rem = 112px
+    const offset = -newIndex * itemHeight;
+
+    // Apply the transform to create smooth transition
+    sectorList.style.transform = `translateY(${offset}px)`;
+    setActiveSector(newSector);
+    updateElementWidths();
   };
 
   return (
@@ -768,25 +601,26 @@ const HeroSection = () => {
                     id="discipline-item"
                     className="flex flex-col items-start overflow-hidden"
                   >
-                    <span
-                      id="prev-discipline-item"
-                      className="h-4 md:h-4 shrink-0 flex items-center whitespace-nowrap"
+                    <div
+                      id="discipline-list-container"
+                      className="h-28 md:h-44 overflow-hidden"
                     >
-                      {prevDiscipline}
-                    </span>
-                    <span
-                      id="current-discipline-item"
-                      className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
-                      data-text
-                    >
-                      {activeDiscipline}
-                    </span>
-                    <span
-                      id="next-discipline-item"
-                      className="h-4 md:h-4 shrink-0 flex items-center whitespace-nowrap"
-                    >
-                      {nextDiscipline}
-                    </span>
+                      <div
+                        id="discipline-list"
+                        className="flex flex-col transition-transform duration-500 ease-in-out"
+                      >
+                        {disciplines.map((discipline, index) => (
+                          <span
+                            key={discipline.id}
+                            id={`discipline-item-${discipline.id}`}
+                            className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
+                            data-text
+                          >
+                            {discipline.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </span>
                   <svg
                     width="12"
@@ -816,25 +650,26 @@ const HeroSection = () => {
                     id="sector-item"
                     className="flex flex-col items-start overflow-hidden"
                   >
-                    <span
-                      id="prev-sector-item"
-                      className="h-4 md:h-4 shrink-0 flex items-center whitespace-nowrap"
+                    <div
+                      id="sector-list-container"
+                      className="h-28 md:h-44 overflow-hidden"
                     >
-                      {prevSector}
-                    </span>
-                    <span
-                      id="current-sector-item"
-                      className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
-                      data-text
-                    >
-                      {activeSector}
-                    </span>
-                    <span
-                      id="next-sector-item"
-                      className="h-4 md:h-4 shrink-0 flex items-center whitespace-nowrap"
-                    >
-                      {nextSector}
-                    </span>
+                      <div
+                        id="sector-list"
+                        className="flex flex-col transition-transform duration-500 ease-in-out"
+                      >
+                        {sectors.map((sector, index) => (
+                          <span
+                            key={sector.id}
+                            id={`sector-item-${sector.id}`}
+                            className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
+                            data-text
+                          >
+                            {sector.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </span>
                   <svg
                     width="12"
@@ -872,20 +707,21 @@ const HeroSection = () => {
 
             <div className="sector-categories">
               <div className="sector-row">
-                {disciplines.map((discipline) =>
-                  discipline.id === "everything" ? (
-                    ""
-                  ) : (
-                    <button
-                      key={discipline.id}
-                      className="sector-chip hover:animate-flow-chip"
-                      onMouseEnter={() => showPreviousWork(discipline.id)}
-                      onMouseLeave={() => showPreviousWork(null, null)}
-                    >
-                      {discipline.label}
-                    </button>
-                  )
-                )}
+                {disciplines.map((discipline, index) => (
+                  <button
+                    key={discipline.id}
+                    className="sector-chip hover:animate-flow-chip"
+                    onMouseEnter={() => showPreviousWork(discipline.id)}
+                    onMouseLeave={() => showPreviousWork(null, null)}
+                    onClick={() => {
+                      setActiveDiscipline(discipline.label);
+                      setIsDisciplineOpen(false);
+                      enableScroll(true);
+                    }}
+                  >
+                    {discipline.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
