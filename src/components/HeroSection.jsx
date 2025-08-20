@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import HomeSlieders from "./HomeSlieders";
 import HeroImageSlider from "./HeroImageSlider";
+import { gsap } from "gsap";
+import { Power2 } from "gsap/gsap-core";
 
 const HeroSection = () => {
   const [activeDiscipline, setActiveDiscipline] = useState("Everything");
@@ -8,11 +10,12 @@ const HeroSection = () => {
   const [isDisciplineOpen, setIsDisciplineOpen] = useState(false);
   const [isSectorOpen, setIsSectorOpen] = useState(false);
 
-  // Animation states for smooth flowing transitions
-  const [isAnimating, setIsAnimating] = useState(false);
-
   // Scroll-based positioning state
   const [filterPosition, setFilterPosition] = useState("top");
+  const filterPositionRef = useRef("top");
+
+  // const [isAnimating, setIsAnimating] = useState(false);
+  const isAnimating = useRef(false);
 
   const disciplineModalRef = useRef(null);
   const disciplineModalBottomRef = useRef(null);
@@ -294,6 +297,45 @@ const HeroSection = () => {
     }, 100);
   }, []);
 
+  const moveFilter = (position) => {
+    if (filterPositionRef.current === position) {
+      return;
+    }
+
+    if (isAnimating.current) {
+      return;
+    }
+    isAnimating.current = true;
+
+    if (position === "top") {
+      gsap.to("#homeFilters", {
+        position: "absolute",
+        top: "50%",
+        duration: 0.2,
+        ease: Power2.Linear,
+        onComplete: () => {
+          filterPositionRef.current = "top";
+          setFilterPosition("top");
+          isAnimating.current = false;
+        },
+      });
+    } else {
+      animateFilter(-1);
+      gsap.to("#homeFilters", {
+        position: "fixed",
+        top: "auto",
+        bottom: "20px",
+        duration: 0.2,
+        ease: Power2.Linear,
+        onComplete: () => {
+          filterPositionRef.current = "bottom";
+          setFilterPosition("bottom");
+          isAnimating.current = false;
+        },
+      });
+    }
+  };
+
   // Scroll event listener for dynamic filter positioning
   useEffect(() => {
     const handleScroll = () => {
@@ -301,14 +343,9 @@ const HeroSection = () => {
 
       // Determine filter position based on scroll amount with smooth threshold
       if (currentScrollY <= 10) {
-        setFilterPosition("top");
+        moveFilter("top");
       } else if (currentScrollY > 10) {
-        setFilterPosition("bottom");
-        // Reset text to default when moving to bottom
-        if (activeDiscipline !== "Everything" || activeSector !== "Everyone") {
-          setActiveDiscipline("Everything");
-          setActiveSector("Everyone");
-        }
+        moveFilter("bottom");
       }
     };
 
@@ -319,19 +356,6 @@ const HeroSection = () => {
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
-    };
-  }, [activeDiscipline, activeSector]);
-
-  // Resize event listener to update discipline and sector widths
-  useEffect(() => {
-    const handleResize = () => {
-      updateElementWidths();
-    };
-
-    window.addEventListener("resize", handleResize, { passive: true });
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -409,23 +433,6 @@ const HeroSection = () => {
     }
   };
 
-  // Simple selection change function
-  const animateSelectionChange = (newDiscipline, newSector) => {
-    if (isAnimating) return; // Prevent multiple animations
-
-    setIsAnimating(true);
-
-    // Update states
-    setActiveDiscipline(newDiscipline);
-    setActiveSector(newSector);
-
-    // Update width after state change
-    setTimeout(() => {
-      updateElementWidths();
-      setIsAnimating(false);
-    }, 100);
-  };
-
   // Function to update discipline and sector element widths to match current elements
   const updateElementWidths = () => {
     // Update discipline width
@@ -437,11 +444,7 @@ const HeroSection = () => {
       }`
     );
 
-    console.log("disciplineElement + ", disciplineElement);
-    console.log("activeDisciplineItem + ", activeDisciplineItem);
-
     if (disciplineElement && activeDisciplineItem) {
-      // const currentWidth = activeDisciplineItem.width;
       const range = document.createRange();
       range.selectNodeContents(activeDisciplineItem);
       const currentWidth = range.getBoundingClientRect().width;
@@ -466,25 +469,15 @@ const HeroSection = () => {
 
   const onChangeSlide = (index) => {
     // Only change text when filter is in center position (top)
-    if (filterPosition !== "top") {
+    if (filterPositionRef.current !== "top") {
       return;
     }
 
-    const realIndex = index + 1;
-    // Find corresponding sector
-    const correspondingSector = sectors.find((sector) => {
-      // Check if the sector has a target property
-      if (sector.target) {
-        // Split the target string by comma and convert to numbers
-        const targetIndices = sector.target
-          .split(",")
-          .map((target) => parseInt(target.trim()));
-        // Check if the given index is in the target indices
-        return targetIndices.includes(realIndex);
-      }
-      return false;
-    });
+    animateFilter(index);
+  };
 
+  const animateFilter = (index) => {
+    const realIndex = index + 1;
     // Find corresponding discipline
     const correspondingDiscipline = disciplines.find((discipline) => {
       // Check if the discipline has a target property
@@ -499,24 +492,31 @@ const HeroSection = () => {
       return false;
     });
 
-    // Only update sector, keep discipline as is
+    const newDiscipline = correspondingDiscipline
+      ? correspondingDiscipline.label
+      : "Everything";
+
+    animateDisciplineList(newDiscipline);
+
+    // Find corresponding sector
+    const correspondingSector = sectors.find((sector) => {
+      // Check if the sector has a target property
+      if (sector.target) {
+        // Split the target string by comma and convert to numbers
+        const targetIndices = sector.target
+          .split(",")
+          .map((target) => parseInt(target.trim()));
+        // Check if the given index is in the target indices
+        return targetIndices.includes(realIndex);
+      }
+      return false;
+    });
+
     const newSector = correspondingSector
       ? correspondingSector.label
       : "Everyone";
 
-    // Only update sector if it's different
-    if (newSector !== activeSector) {
-      animateSectorList(newSector);
-    }
-
-    // Don't automatically change discipline - let user control it
-    // Only animate discipline if there's a specific corresponding discipline found
-    if (
-      correspondingDiscipline &&
-      correspondingDiscipline.label !== activeDiscipline
-    ) {
-      animateDisciplineList(correspondingDiscipline.label);
-    }
+    animateSectorList(newSector);
   };
 
   // Function to animate discipline list position
@@ -538,7 +538,6 @@ const HeroSection = () => {
     // Apply the transform to create smooth transition
     disciplineList.style.transform = `translateY(${offset}px)`;
     setActiveDiscipline(newDiscipline);
-    updateElementWidths();
   };
 
   // Function to animate sector list position
@@ -558,37 +557,27 @@ const HeroSection = () => {
     // Apply the transform to create smooth transition
     sectorList.style.transform = `translateY(${offset}px)`;
     setActiveSector(newSector);
-    updateElementWidths();
   };
 
   return (
     <div>
       <div className="h-full flex flex-col w-full">
-        <div
-          className="relative w-full flex items-center justify-center bg-white grow max-w-[1728px] mx-auto aspect-3/4 sm:aspect-[7/3]"
-          data-behavior="filterAnimationCarousel"
-        >
+        <div className="relative w-full flex items-center justify-center bg-white grow max-w-[1728px] mx-auto aspect-3/4 sm:aspect-[7/3]">
           <div className="swiper-container inset-0 absolute h-auto w-full">
             <HomeSlieders
               onChangeSlide={onChangeSlide}
               isModalOpen={isDisciplineOpen || isSectorOpen}
             />
           </div>
-
-          <div className="invisible"></div>
           <div
-            className={`homeFilters absolute h-fit flex flex-col-reverse md:flex-col container transition-all duration-1000 ease-in-out ${
-              filterPosition === "bottom"
+            id="homeFilters"
+            className={`h-fit flex flex-col-reverse md:flex-col ${
+              filterPositionRef.current === "bottom"
                 ? "filter-position-bottom"
                 : "filter-position-top"
             }`}
           >
-            <div
-              className={`mx-gutter md:py-0 overflow-hidden sm:mx-0 homeFilters__filters px-8 md:px-16 f-body-1 rounded-4 ${
-                isAnimating ? "animate-flow-container" : ""
-              }`}
-            >
-              <span className="sr-only">We design everything for everyone</span>
+            <div className="mx-gutter md:py-0 overflow-hidden sm:mx-0 homeFilters__filters px-8 md:px-16 f-body-1 rounded-4">
               <div className="flex flex-col md:flex-row items-center hover:text-secondary">
                 <span aria-hidden="true">We design&nbsp;</span>
                 <span
@@ -607,7 +596,8 @@ const HeroSection = () => {
                     >
                       <div
                         id="discipline-list"
-                        className="flex flex-col transition-transform duration-500 ease-in-out"
+                        className="flex flex-col"
+                        style={{ transition: "all 800ms ease-in-out" }}
                       >
                         {disciplines.map((discipline, index) => (
                           <span
@@ -626,9 +616,7 @@ const HeroSection = () => {
                     width="12"
                     height="12"
                     fill="none"
-                    className={`mt-4 md:mt-3 md:mb-3 homeFilters__chevron transition-all duration-500 ease-in-out ${
-                      isDisciplineOpen ? "close-cursor" : ""
-                    }`}
+                    className="mt-4 md:mt-3 md:mb-3 homeFilters__chevron"
                     name="caret-down-12"
                     aria-hidden="true"
                     data-dropdown-chevron="data-dropdown-chevron"
@@ -656,7 +644,8 @@ const HeroSection = () => {
                     >
                       <div
                         id="sector-list"
-                        className="flex flex-col transition-transform duration-500 ease-in-out"
+                        className="flex flex-col"
+                        style={{ transition: "all 800ms ease-in-out" }}
                       >
                         {sectors.map((sector, index) => (
                           <span
@@ -675,9 +664,7 @@ const HeroSection = () => {
                     width="12"
                     height="12"
                     fill="none"
-                    className={`md:mt-3 mb-3 homeFilters__chevron transition-all duration-500 ease-in-out ${
-                      isSectorOpen ? "close-cursor" : ""
-                    }`}
+                    className="md:mt-3 mb-3 homeFilters__chevron"
                     name="caret-down-12"
                     aria-hidden="true"
                     data-dropdown-chevron="data-dropdown-chevron"

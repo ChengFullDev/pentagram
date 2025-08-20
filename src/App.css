@@ -27348,7 +27348,6 @@ html:not(.page-work):not(.page-about):not(.page-news):not(.page-contact):not(
   position: absolute;
   bottom: auto;
   top: 50%;
-  transform: translateY(-50%);
   opacity: 1;
 }
 
@@ -27356,7 +27355,6 @@ html:not(.page-work):not(.page-about):not(.page-news):not(.page-contact):not(
   position: fixed;
   bottom: 20px;
   top: auto;
-  transform: translateY(0);
   opacity: 1;
   z-index: 1000;
 }
@@ -27378,14 +27376,6 @@ html:not(.page-work):not(.page-about):not(.page-news):not(.page-contact):not(
   100% {
     transform: translateY(-50%);
   }
-}
-
-.filter-position-top {
-  animation: slideUpToCenter 1s ease-out;
-}
-
-.filter-position-bottom {
-  animation: slideDownToBottom 1s ease-out;
 }
 
 /* Smooth transition for filter container */
