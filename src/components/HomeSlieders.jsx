@@ -485,7 +485,7 @@ const HomeSlieders = ({ onChangeSlide }) => {
   };
 
   return (
-    <div className="mt-24 lg:mt-64 container !max-w-full !mx-auto">
+    <div>
       <Slider
         ref={sliderRef}
         dots={false}

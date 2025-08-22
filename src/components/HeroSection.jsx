@@ -519,6 +519,16 @@ const HeroSection = () => {
     animateSectorList(newSector);
   };
 
+  // Function to get the actual height of discipline/sector items
+  const getItemHeight = () => {
+    // const item = document.querySelector("#discipline-item-1") || document.querySelector("#sector-item-1");
+    // if (item) {
+    //   return item.offsetHeight;
+    // }
+    // // Fallback to default height based on screen size
+    return window.innerWidth >= 800 ? 44 : 28;
+  };
+
   // Function to animate discipline list position
   const animateDisciplineList = (newDiscipline) => {
     const disciplineList = document.querySelector("#discipline-list");
@@ -532,7 +542,7 @@ const HeroSection = () => {
     if (currentIndex === -1 || newIndex === -1) return;
 
     // Calculate the transform to move from current to new position
-    const itemHeight = 44; // h-28 = 7rem = 112px
+    const itemHeight = getItemHeight();
     const offset = -newIndex * itemHeight;
 
     // Apply the transform to create smooth transition
@@ -551,7 +561,7 @@ const HeroSection = () => {
     if (currentIndex === -1 || newIndex === -1) return;
 
     // Calculate the transform to move from current to new position
-    const itemHeight = 44; // h-28 = 7rem = 112px
+    const itemHeight = getItemHeight();
     const offset = -newIndex * itemHeight;
 
     // Apply the transform to create smooth transition
@@ -571,108 +581,117 @@ const HeroSection = () => {
           </div>
           <div
             id="homeFilters"
-            className={`h-fit flex flex-col-reverse md:flex-col ${
+            className={`homeFilters h-fit flex flex-col-reverse md:flex-col w-full container ${
               filterPositionRef.current === "bottom"
                 ? "filter-position-bottom"
                 : "filter-position-top"
             }`}
           >
-            <div className="mx-gutter md:py-0 overflow-hidden sm:mx-0 homeFilters__filters px-8 md:px-16 f-body-1 rounded-4">
+            <div
+              className="mx-gutter !py-0 overflow-hidden sm:mx-0 homeFilters__filters
+              px-8 md:px-16 f-body-1 rounded-4 md:w-auto w-full"
+            >
               <div className="flex flex-col md:flex-row items-center hover:text-secondary">
-                <span aria-hidden="true">We design&nbsp;</span>
-                <span
-                  aria-label="Choose work type"
-                  className="inline-flex items-center hover:text-primary relative cursor-pointer h-[40px] overflow-hidden"
-                  aria-expanded={isDisciplineOpen}
-                  onClick={onClickDiscipline}
-                >
+                <div>
+                  <span aria-hidden="true">We design&nbsp;</span>
                   <span
-                    id="discipline-item"
-                    className="flex flex-col items-start overflow-hidden"
+                    aria-label="Choose work type"
+                    className="inline-flex items-center hover:text-primary relative cursor-pointer
+                      h-[28px] md:h-[44px] overflow-hidden"
+                    aria-expanded={isDisciplineOpen}
+                    onClick={onClickDiscipline}
                   >
-                    <div
-                      id="discipline-list-container"
-                      className="h-28 md:h-44 overflow-hidden"
+                    <span
+                      id="discipline-item"
+                      className="flex flex-col items-start overflow-hidden"
                     >
                       <div
-                        id="discipline-list"
-                        className="flex flex-col"
-                        style={{ transition: "all 800ms ease-in-out" }}
+                        id="discipline-list-container"
+                        className="h-28 md:h-44 overflow-hidden"
                       >
-                        {disciplines.map((discipline, index) => (
-                          <span
-                            key={discipline.id}
-                            id={`discipline-item-${discipline.id}`}
-                            className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
-                            data-text
-                          >
-                            {discipline.label}
-                          </span>
-                        ))}
+                        <div
+                          id="discipline-list"
+                          className="flex flex-col"
+                          style={{ transition: "all 800ms ease-in-out" }}
+                        >
+                          {disciplines.map((discipline, index) => (
+                            <span
+                              key={discipline.id}
+                              id={`discipline-item-${discipline.id}`}
+                              className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
+                              data-text
+                            >
+                              {discipline.label}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    </span>
+                    <svg
+                      width="12"
+                      height="12"
+                      fill="none"
+                      className="mt-4 md:mt-3 md:mb-3 homeFilters__chevron"
+                      name="caret-down-12"
+                      aria-hidden="true"
+                      data-dropdown-chevron="data-dropdown-chevron"
+                      viewBox="0 0 12 12"
+                    >
+                      <use xlinkHref="#caret-down-12"></use>
+                    </svg>
                   </span>
-                  <svg
-                    width="12"
-                    height="12"
-                    fill="none"
-                    className="mt-4 md:mt-3 md:mb-3 homeFilters__chevron"
-                    name="caret-down-12"
-                    aria-hidden="true"
-                    data-dropdown-chevron="data-dropdown-chevron"
-                    viewBox="0 0 12 12"
-                  >
-                    <use xlinkHref="#caret-down-12"></use>
-                  </svg>
-                </span>
-                <span aria-hidden="true" className="inline">
-                  &nbsp;for&nbsp;
-                </span>
-                <span
-                  aria-label="Choose industry type"
-                  className="inline-flex items-center hover:text-primary relative cursor-pointer h-[40px] overflow-hidden"
-                  aria-expanded={isSectorOpen}
-                  onClick={onClickSector}
-                >
+                </div>
+                <div>
+                  <span aria-hidden="true" className="inline">
+                    &nbsp;for&nbsp;
+                  </span>
                   <span
-                    id="sector-item"
-                    className="flex flex-col items-start overflow-hidden"
+                    aria-label="Choose industry type"
+                    className="inline-flex items-center hover:text-primary relative cursor-pointer
+                      h-[28px] md:h-[44px] overflow-hidden"
+                    aria-expanded={isSectorOpen}
+                    onClick={onClickSector}
                   >
-                    <div
-                      id="sector-list-container"
-                      className="h-28 md:h-44 overflow-hidden"
+                    <span
+                      id="sector-item"
+                      className="flex flex-col items-start overflow-hidden"
                     >
                       <div
-                        id="sector-list"
-                        className="flex flex-col"
-                        style={{ transition: "all 800ms ease-in-out" }}
+                        id="sector-list-container"
+                        className="h-28 md:h-44 overflow-hidden"
                       >
-                        {sectors.map((sector, index) => (
-                          <span
-                            key={sector.id}
-                            id={`sector-item-${sector.id}`}
-                            className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
-                            data-text
-                          >
-                            {sector.label}
-                          </span>
-                        ))}
+                        <div
+                          id="sector-list"
+                          className="flex flex-col"
+                          style={{ transition: "all 800ms ease-in-out" }}
+                        >
+                          {sectors.map((sector, index) => (
+                            <span
+                              key={sector.id}
+                              id={`sector-item-${sector.id}`}
+                              className="h-28 md:h-44 shrink-0 flex items-center whitespace-nowrap"
+                              data-text
+                            >
+                              {sector.label}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    </span>
+                    <svg
+                      width="12"
+                      height="12"
+                      fill="none"
+                      className="md:mt-3 mb-3 homeFilters__chevron"
+                      name="caret-down-12"
+                      aria-hidden="true"
+                      data-dropdown-chevron="data-dropdown-chevron"
+                      viewBox="0 0 12 12"
+                    >
+                      <use xlinkHref="#caret-down-12"></use>
+                    </svg>
                   </span>
-                  <svg
-                    width="12"
-                    height="12"
-                    fill="none"
-                    className="md:mt-3 mb-3 homeFilters__chevron"
-                    name="caret-down-12"
-                    aria-hidden="true"
-                    data-dropdown-chevron="data-dropdown-chevron"
-                    viewBox="0 0 12 12"
-                  >
-                    <use xlinkHref="#caret-down-12"></use>
-                  </svg>
-                </span>
+                </div>
               </div>
             </div>
           </div>
