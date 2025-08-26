@@ -11,7 +11,6 @@ const HeroSection = () => {
   const [modalType, setModalType] = useState("discipline"); // "discipline" or "sector"
 
   // Scroll-based positioning state
-  const [filterPosition, setFilterPosition] = useState("top");
   const filterPositionRef = useRef("top");
 
   // const [isAnimating, setIsAnimating] = useState(false);
@@ -296,6 +295,8 @@ const HeroSection = () => {
   }, []);
 
   const moveFilter = (position) => {
+    console.log("moveFilter", position);
+    console.log("filterPositionRef.current", filterPositionRef.current);
     if (filterPositionRef.current === position) {
       return;
     }
@@ -306,33 +307,86 @@ const HeroSection = () => {
     isAnimating.current = true;
 
     if (position === "top") {
-      gsap.to("#homeFilters", {
-        position: "absolute",
+      const homeFiltersElement = document.getElementById("homeFilters");
+      const viewportHeight = window.innerHeight;
+      const elementHeight = homeFiltersElement
+        ? homeFiltersElement.offsetHeight
+        : 0;
+      const calculatedTop = viewportHeight - elementHeight - 20;
+
+      gsap.set("#homeFilters", {
+        top: `${calculatedTop}px`,
+        bottom: "auto",
+      });
+
+      // First set the element to current bottom position, then animate to center
+      gsap.set("#homeFilters", {
         top: "50%",
-        duration: 0.2,
-        ease: Power2.Linear,
+        transform: "translateY(-50%)",
+        duration: 0.1,
+        ease: "linear",
         onComplete: () => {
           filterPositionRef.current = "top";
-          setFilterPosition("top");
-          isAnimating.current = false;
+
+          setTimeout(() => {
+            isAnimating.current = false;
+
+            gsap.set("#homeFilters", {
+              position: "relative",
+              top: "auto",
+            });
+
+            if (window.scrollY > 10) {
+              moveFilter("bottom");
+            }
+          }, 1000);
         },
       });
     } else {
       animateFilter(-1);
-      gsap.to("#homeFilters", {
+      // Calculate top position so bottom is 20px from viewport bottom
+      const homeFiltersElement = document.getElementById("homeFilters");
+      const viewportHeight = window.innerHeight;
+      const elementHeight = homeFiltersElement
+        ? homeFiltersElement.offsetHeight
+        : 0;
+      const calculatedTop = viewportHeight - elementHeight - 20;
+
+      // First set the element to center position, then animate to bottom
+      gsap.set("#homeFilters", {
         position: "fixed",
-        top: "auto",
-        bottom: "20px",
-        duration: 0.2,
-        ease: Power2.Linear,
+        top: "50%",
+        transform: "translateY(-50%)",
+      });
+
+      gsap.to("#homeFilters", {
+        top: `${calculatedTop}px`,
+        transform: "translateY(0)",
+        duration: 0.1,
+        ease: "linear",
         onComplete: () => {
           filterPositionRef.current = "bottom";
-          setFilterPosition("bottom");
-          isAnimating.current = false;
+
+          setTimeout(() => {
+            isAnimating.current = false;
+
+            gsap.set("#homeFilters", {
+              top: "auto",
+              bottom: "20px",
+            });
+
+            if (window.scrollY <= 10) {
+              moveFilter("top");
+            }
+          }, 1000);
         },
       });
     }
   };
+
+  useEffect(() => {
+    moveFilter(filterPositionRef.current);
+  }, [filterPositionRef.current]);
 
   // Scroll event listener for dynamic filter positioning
   useEffect(() => {
@@ -584,11 +638,7 @@ const HeroSection = () => {
           </div>
           <div
             id="homeFilters"
-            className={`homeFilters h-fit flex flex-col-reverse md:flex-col w-full container ${
-              filterPositionRef.current === "bottom"
-                ? "filter-position-bottom"
-                : "filter-position-top"
-            }`}
+            className={`homeFilters h-fit flex flex-col-reverse md:flex-col w-full container`}
           >
             <div
               className="mx-gutter !py-0 overflow-hidden sm:mx-0 homeFilters__filters
@@ -734,23 +784,23 @@ const HeroSection = () => {
                           {discipline.label}
                         </button>
                       ))
-                                     : // Sector content
-                     sectors
-                       .filter((sector) => sector.label !== "Everyone")
-                       .map((sector) => (
-                         <button
-                           key={sector.id}
-                           className="sector-chip hover:animate-flow-chip"
-                           onMouseEnter={() => showPreviousWork(null, sector)}
-                           onMouseLeave={() => showPreviousWork(null, null)}
-                           onClick={() => {
-                             setActiveSector(sector.label);
-                             closeModal();
-                           }}
-                         >
-                           {sector.label}
-                         </button>
-                       ))}
+                  : // Sector content
+                    sectors
+                      .filter((sector) => sector.label !== "Everyone")
+                      .map((sector) => (
+                        <button
+                          key={sector.id}
+                          className="sector-chip hover:animate-flow-chip"
+                          onMouseEnter={() => showPreviousWork(null, sector)}
+                          onMouseLeave={() => showPreviousWork(null, null)}
+                          onClick={() => {
+                            setActiveSector(sector.label);
+                            closeModal();
+                          }}
+                        >
+                          {sector.label}
+                        </button>
+                      ))}
               </div>
             </div>
           </div>

@@ -27308,22 +27308,6 @@ html:not(.page-work):not(.page-about):not(.page-news):not(.page-contact):not(
   left: 100%;
 }
 
-/* Dynamic filter positioning based on scroll */
-.filter-position-top {
-  position: absolute;
-  bottom: auto;
-  top: 50%;
-  opacity: 1;
-}
-
-.filter-position-bottom {
-  position: fixed;
-  bottom: 20px;
-  top: auto;
-  opacity: 1;
-  z-index: 1000;
-}
-
 /* Slide animations for filter movement */
 @keyframes slideDownToBottom {
   0% {
