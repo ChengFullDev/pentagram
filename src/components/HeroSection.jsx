@@ -7,8 +7,8 @@ import { Power2 } from "gsap/gsap-core";
 const HeroSection = () => {
   const [activeDiscipline, setActiveDiscipline] = useState("Everything");
   const [activeSector, setActiveSector] = useState("Everyone");
-  const [isDisciplineOpen, setIsDisciplineOpen] = useState(false);
-  const [isSectorOpen, setIsSectorOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("discipline"); // "discipline" or "sector"
 
   // Scroll-based positioning state
   const [filterPosition, setFilterPosition] = useState("top");
@@ -17,10 +17,8 @@ const HeroSection = () => {
   // const [isAnimating, setIsAnimating] = useState(false);
   const isAnimating = useRef(false);
 
-  const disciplineModalRef = useRef(null);
-  const disciplineModalBottomRef = useRef(null);
-  const sectorModalRef = useRef(null);
-  const sectorModalBottomRef = useRef(null);
+  const modalRef = useRef(null);
+  const modalBottomRef = useRef(null);
 
   const [previewWorkList, setPreviewWorkList] = useState(null);
 
@@ -363,22 +361,12 @@ const HeroSection = () => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
-        disciplineModalRef.current &&
-        disciplineModalBottomRef.current &&
-        !disciplineModalBottomRef.current.contains(event.target) &&
-        !disciplineModalRef.current.contains(event.target)
+        modalRef.current &&
+        modalBottomRef.current &&
+        !modalBottomRef.current.contains(event.target) &&
+        !modalRef.current.contains(event.target)
       ) {
-        setIsDisciplineOpen(false);
-        enableScroll(true);
-      }
-
-      if (
-        sectorModalRef.current &&
-        sectorModalBottomRef.current &&
-        !sectorModalRef.current.contains(event.target) &&
-        !sectorModalBottomRef.current.contains(event.target)
-      ) {
-        setIsSectorOpen(false);
+        setIsModalOpen(false);
         enableScroll(true);
       }
     };
@@ -404,12 +392,14 @@ const HeroSection = () => {
   }, [activeSector]);
 
   const onClickDiscipline = () => {
-    setIsDisciplineOpen(true);
+    setModalType("discipline");
+    setIsModalOpen(true);
     enableScroll(false);
   };
 
   const onClickSector = () => {
-    setIsSectorOpen(true);
+    setModalType("sector");
+    setIsModalOpen(true);
     enableScroll(false);
   };
 
@@ -431,6 +421,19 @@ const HeroSection = () => {
     } else {
       setPreviewWorkList(null);
     }
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    enableScroll(true);
+  };
+
+  const switchToDiscipline = () => {
+    setModalType("discipline");
+  };
+
+  const switchToSector = () => {
+    setModalType("sector");
   };
 
   // Function to update discipline and sector element widths to match current elements
@@ -576,7 +579,7 @@ const HeroSection = () => {
           <div className="swiper-container inset-0 absolute h-auto w-full">
             <HomeSlieders
               onChangeSlide={onChangeSlide}
-              isModalOpen={isDisciplineOpen || isSectorOpen}
+              isModalOpen={isModalOpen}
             />
           </div>
           <div
@@ -598,7 +601,7 @@ const HeroSection = () => {
                     aria-label="Choose work type"
                     className="inline-flex items-center hover:text-primary relative cursor-pointer
                       h-[28px] md:h-[44px] overflow-hidden"
-                    aria-expanded={isDisciplineOpen}
+                    aria-expanded={isModalOpen && modalType === "discipline"}
                     onClick={onClickDiscipline}
                   >
                     <span
@@ -649,7 +652,7 @@ const HeroSection = () => {
                     aria-label="Choose industry type"
                     className="inline-flex items-center hover:text-primary relative cursor-pointer
                       h-[28px] md:h-[44px] overflow-hidden"
-                    aria-expanded={isSectorOpen}
+                    aria-expanded={isModalOpen && modalType === "sector"}
                     onClick={onClickSector}
                   >
                     <span
@@ -698,12 +701,12 @@ const HeroSection = () => {
         </div>
       </div>
 
-      {/* Discipline Dropdown */}
-      {isDisciplineOpen && (
+      {/* Unified Modal */}
+      {isModalOpen && (
         <div className="hero-dropdown-modal cursor-cross-light">
           <div
             className="hero-dropdown-content sector-dropdown cursor-auto"
-            ref={disciplineModalRef}
+            ref={modalRef}
           >
             <HeroImageSlider
               images={previewWorkList}
@@ -713,21 +716,41 @@ const HeroSection = () => {
 
             <div className="sector-categories">
               <div className="sector-row">
-                {disciplines.map((discipline, index) => (
-                  <button
-                    key={discipline.id}
-                    className="sector-chip hover:animate-flow-chip"
-                    onMouseEnter={() => showPreviousWork(discipline.id)}
-                    onMouseLeave={() => showPreviousWork(null, null)}
-                    onClick={() => {
-                      setActiveDiscipline(discipline.label);
-                      setIsDisciplineOpen(false);
-                      enableScroll(true);
-                    }}
-                  >
-                    {discipline.label}
-                  </button>
-                ))}
+                {modalType === "discipline"
+                  ? // Discipline content
+                    disciplines
+                      .filter((discipline) => discipline.label !== "Everything")
+                      .map((discipline, index) => (
+                        <button
+                          key={discipline.id}
+                          className="sector-chip hover:animate-flow-chip"
+                          onMouseEnter={() => showPreviousWork(discipline.id)}
+                          onMouseLeave={() => showPreviousWork(null, null)}
+                          onClick={() => {
+                            setActiveDiscipline(discipline.label);
+                            closeModal();
+                          }}
+                        >
+                          {discipline.label}
+                        </button>
+                      ))
+                                     : // Sector content
+                     sectors
+                       .filter((sector) => sector.label !== "Everyone")
+                       .map((sector) => (
+                         <button
+                           key={sector.id}
+                           className="sector-chip hover:animate-flow-chip"
+                           onMouseEnter={() => showPreviousWork(null, sector)}
+                           onMouseLeave={() => showPreviousWork(null, null)}
+                           onClick={() => {
+                             setActiveSector(sector.label);
+                             closeModal();
+                           }}
+                         >
+                           {sector.label}
+                         </button>
+                       ))}
               </div>
             </div>
           </div>
@@ -735,14 +758,19 @@ const HeroSection = () => {
           <div
             className="sector-tagline absolute bottom-4 mx-auto bg-[#e8e8e8cc] px-4
             rounded-lg shadow-lg cursor-auto !text-[15px] pb-1 !text-[#767676]"
-            ref={disciplineModalBottomRef}
+            ref={modalBottomRef}
           >
             <span>We design </span>
             <button
-              className="tagline-dropdown inline-flex items-center text-[#1A1A1A] font-bold"
+              className={`tagline-dropdown inline-flex items-center ${
+                modalType === "discipline" ? "text-[#1A1A1A] font-bold" : ""
+              }`}
               onClick={() => {
-                setIsDisciplineOpen(false);
-                enableScroll(true);
+                if (modalType === "discipline") {
+                  closeModal();
+                } else {
+                  switchToDiscipline();
+                }
               }}
             >
               Everything
@@ -750,7 +778,9 @@ const HeroSection = () => {
                 width="12"
                 height="12"
                 fill="none"
-                className={`mt-4 md:mt-3 md:mb-3 homeFilters__chevron !rotate-180`}
+                className={`mt-4 md:mt-3 md:mb-3 homeFilters__chevron ${
+                  modalType === "discipline" ? "!rotate-180" : ""
+                }`}
                 name="caret-down-12"
                 aria-hidden="true"
                 data-dropdown-chevron="data-dropdown-chevron"
@@ -761,10 +791,15 @@ const HeroSection = () => {
             </button>
             <span> for </span>
             <button
-              className="tagline-dropdown inline-flex items-center"
+              className={`tagline-dropdown inline-flex items-center ${
+                modalType === "sector" ? "text-[#1A1A1A] font-bold" : ""
+              }`}
               onClick={() => {
-                setIsDisciplineOpen(false);
-                onClickSector();
+                if (modalType === "sector") {
+                  closeModal();
+                } else {
+                  switchToSector();
+                }
               }}
             >
               Everyone
@@ -772,89 +807,9 @@ const HeroSection = () => {
                 width="12"
                 height="12"
                 fill="none"
-                className="mt-4 md:mt-3 md:mb-3 homeFilters__chevron"
-                name="caret-down-12"
-                aria-hidden="true"
-                data-dropdown-chevron="data-dropdown-chevron"
-                viewBox="0 0 12 12"
-              >
-                <use xlinkHref="#caret-down-12"></use>
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Sector Dropdown */}
-      {isSectorOpen && (
-        <div className="hero-dropdown-modal cursor-cross-light">
-          <div
-            className="hero-dropdown-content sector-dropdown cursor-auto"
-            ref={sectorModalRef}
-          >
-            <HeroImageSlider
-              images={previewWorkList}
-              height="300px"
-              className="mb-10"
-            />
-
-            <div className="sector-categories">
-              <div className="sector-row">
-                {sectors.map((sector) => (
-                  <button
-                    key={sector.id}
-                    className="sector-chip hover:animate-flow-chip"
-                    onMouseEnter={() => showPreviousWork(null, sector)}
-                    onMouseLeave={() => showPreviousWork(null, null)}
-                  >
-                    {sector.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="sector-tagline absolute bottom-4 mx-auto bg-[#e8e8e8cc] px-4
-            rounded-lg shadow-lg cursor-auto !text-[15px] pb-1 !text-[#767676]"
-            ref={sectorModalBottomRef}
-          >
-            <span>We design </span>
-            <button
-              className="tagline-dropdown inline-flex items-center"
-              onClick={() => {
-                setIsSectorOpen(false);
-                onClickDiscipline();
-              }}
-            >
-              Everything
-              <svg
-                width="12"
-                height="12"
-                fill="none"
-                className={`mt-4 md:mt-3 md:mb-3 homeFilters__chevron`}
-                name="caret-down-12"
-                aria-hidden="true"
-                data-dropdown-chevron="data-dropdown-chevron"
-                viewBox="0 0 12 12"
-              >
-                <use xlinkHref="#caret-down-12"></use>
-              </svg>
-            </button>
-            <span> for </span>
-            <button
-              className="tagline-dropdown inline-flex items-center text-[#1A1A1A] font-bold"
-              onClick={() => {
-                setIsSectorOpen(false);
-                enableScroll(true);
-              }}
-            >
-              Everyone
-              <svg
-                width="12"
-                height="12"
-                fill="none"
-                className="mt-4 md:mt-3 md:mb-3 homeFilters__chevron !rotate-180"
+                className={`mt-4 md:mt-3 md:mb-3 homeFilters__chevron ${
+                  modalType === "sector" ? "!rotate-180" : ""
+                }`}
                 name="caret-down-12"
                 aria-hidden="true"
                 data-dropdown-chevron="data-dropdown-chevron"
